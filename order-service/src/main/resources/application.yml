@@ -1,0 +1,51 @@
+# =====================================================================================
+# ORDER SERVICE - independent microservice, independent database
+# =====================================================================================
+server:
+  port: ${ORDER_SERVICE_PORT:8081}
+
+spring:
+  application:
+    name: order-service
+
+  # ---------------------------------------------------------------------------------
+  # THIS SERVICE'S OWN DATABASE.
+  # File-based H2 stored under order-service/data/orderdb.mv.db.
+  # No other service has the URL, the credentials or the entity classes for it.
+  # Switch to PostgreSQL by overriding these three properties (see README section 14).
+  # ---------------------------------------------------------------------------------
+  datasource:
+    url: ${ORDER_DB_URL:jdbc:h2:file:./data/orderdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    driver-class-name: ${ORDER_DB_DRIVER:org.h2.Driver}
+    username: ${ORDER_DB_USERNAME:sa}
+    password: ${ORDER_DB_PASSWORD:}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+    properties:
+      hibernate:
+        format_sql: true
+
+  h2:
+    console:
+      enabled: true           # http://localhost:8081/h2-console  (JDBC URL above, user "sa", no password)
+      path: /h2-console
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+# Artificial per-call latency so the Saga is visible step-by-step on the projector.
+demo:
+  processing-delay-ms: ${ORDER_PROCESSING_DELAY_MS:150}
+
+logging:
+  level:
+    com.sagademo.order: INFO
+    org.hibernate.SQL: WARN
+  pattern:
+    # [saga=...] [order=...] come from SagaTraceFilter (MDC) -> one Saga traceable across services
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr([ORDER_SERVICE]){magenta} %clr([saga=%X{sagaId:-none}] [order=%X{orderId:-none}]){cyan} %clr(%-32.32logger{0}){faint} %msg%n"

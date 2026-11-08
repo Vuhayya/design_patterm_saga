@@ -1,0 +1,31 @@
+# Java / Maven
+target/
+*.class
+*.log
+
+# H2 database files
+**/data/*.mv.db
+**/data/*.trace.db
+
+# Node / Next.js
+node_modules/
+.next/
+out/
+*.tsbuildinfo
+frontend/test-results/
+frontend/playwright-report/
+
+# Env files
+.env
+.env.*
+!.env.example
+
+# IDE / OS
+.idea/
+*.iml
+.vscode/
+.DS_Store
+Thumbs.db
+
+# Local tool settings
+.claude/settings.local.json

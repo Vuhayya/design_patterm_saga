@@ -1,0 +1,43 @@
+# =====================================================================================
+# PAYMENT SERVICE - independent microservice, independent database
+# No real payment provider is involved. "Capturing money" = inserting a row in H2.
+# =====================================================================================
+server:
+  port: ${PAYMENT_SERVICE_PORT:8083}
+
+spring:
+  application:
+    name: payment-service
+
+  # THIS SERVICE'S OWN DATABASE: payment-service/data/paymentdb.mv.db
+  datasource:
+    url: ${PAYMENT_DB_URL:jdbc:h2:file:./data/paymentdb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    driver-class-name: ${PAYMENT_DB_DRIVER:org.h2.Driver}
+    username: ${PAYMENT_DB_USERNAME:sa}
+    password: ${PAYMENT_DB_PASSWORD:}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  h2:
+    console:
+      enabled: true           # http://localhost:8083/h2-console
+      path: /h2-console
+
+  jackson:
+    default-property-inclusion: non_null
+    serialization:
+      write-dates-as-timestamps: false
+
+demo:
+  # Slightly slower than the others - a payment gateway is the slow hop in real life too.
+  processing-delay-ms: ${PAYMENT_PROCESSING_DELAY_MS:250}
+
+logging:
+  level:
+    com.sagademo.payment: INFO
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr([PAYMENT_SERVICE]){yellow} %clr([saga=%X{sagaId:-none}] [order=%X{orderId:-none}]){cyan} %clr(%-32.32logger{0}){faint} %msg%n"

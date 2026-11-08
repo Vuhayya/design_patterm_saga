@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<project xmlns="http://maven.apache.org/POM/4.0.0"
+         xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+         xsi:schemaLocation="http://maven.apache.org/POM/4.0.0 https://maven.apache.org/xsd/maven-4.0.0.xsd">
+    <modelVersion>4.0.0</modelVersion>
+
+    <!--
+      ============================================================================
+      SAGA PATTERN DEMO - PARENT / AGGREGATOR POM
+      ============================================================================
+      IMPORTANT ARCHITECTURAL NOTE FOR THE PRESENTATION:
+
+      This parent POM exists ONLY as a *build convenience* so that a student can
+      compile and test all five microservices with a single command:
+
+          mvn clean install
+
+      It does NOT make the services a monolith. Each module below:
+        * is a separate, independently executable Spring Boot application
+        * has its own main() method
+        * has its own HTTP port
+        * has its own database (its own H2 file, its own schema, its own tables)
+        * shares NO entity classes, NO repositories and NO database transaction
+          with any other module
+
+      The only thing the modules share is this build descriptor (dependency
+      versions), exactly like separate repositories sharing a company-wide BOM.
+      ============================================================================
+    -->
+
+    <parent>
+        <groupId>org.springframework.boot</groupId>
+        <artifactId>spring-boot-starter-parent</artifactId>
+        <version>3.5.16</version>
+        <relativePath/>
+    </parent>
+
+    <groupId>com.sagademo</groupId>
+    <artifactId>saga-demo-parent</artifactId>
+    <version>1.0.0</version>
+    <packaging>pom</packaging>
+    <name>saga-demo-parent</name>
+    <description>Saga Design Pattern demonstration - Online Food Ordering System</description>
+
+    <modules>
+        <module>order-service</module>
+        <module>inventory-service</module>
+        <module>payment-service</module>
+        <module>saga-orchestrator</module>
+        <module>api-gateway</module>
+    </modules>
+
+    <properties>
+        <java.version>21</java.version>
+        <maven.compiler.source>21</maven.compiler.source>
+        <maven.compiler.target>21</maven.compiler.target>
+        <project.build.sourceEncoding>UTF-8</project.build.sourceEncoding>
+        <spring-cloud.version>2025.0.3</spring-cloud.version>
+    </properties>
+
+    <dependencyManagement>
+        <dependencies>
+            <dependency>
+                <groupId>org.springframework.cloud</groupId>
+                <artifactId>spring-cloud-dependencies</artifactId>
+                <version>${spring-cloud.version}</version>
+                <type>pom</type>
+                <scope>import</scope>
+            </dependency>
+        </dependencies>
+    </dependencyManagement>
+</project>

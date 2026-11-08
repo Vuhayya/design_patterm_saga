@@ -1,0 +1,62 @@
+# =====================================================================================
+# SAGA ORCHESTRATOR - owns the state of the distributed transaction (NOT business data)
+# =====================================================================================
+server:
+  port: ${SAGA_ORCHESTRATOR_PORT:8084}
+
+spring:
+  application:
+    name: saga-orchestrator
+
+  # THE SAGA DATABASE: saga-orchestrator/data/sagadb.mv.db
+  # It stores saga_executions / saga_step_executions / service_call_logs / saga_log_entries.
+  # It contains NO orders, NO stock and NO payments - those belong to the other services.
+  datasource:
+    url: ${SAGA_DB_URL:jdbc:h2:file:./data/sagadb;DB_CLOSE_DELAY=-1;DB_CLOSE_ON_EXIT=FALSE}
+    driver-class-name: ${SAGA_DB_DRIVER:org.h2.Driver}
+    username: ${SAGA_DB_USERNAME:sa}
+    password: ${SAGA_DB_PASSWORD:}
+
+  jpa:
+    hibernate:
+      ddl-auto: update
+    open-in-view: false
+
+  h2:
+    console:
+      enabled: true           # http://localhost:8084/h2-console
+      path: /h2-console
+
+  jackson:
+    default-property-inclusion: always
+    serialization:
+      write-dates-as-timestamps: false
+    deserialization:
+      fail-on-unknown-properties: false
+
+# =====================================================================================
+# SAGA CONFIGURATION (requirement #16: every URL configurable)
+# =====================================================================================
+saga:
+  # Pause before each step, purely so the audience can follow the timeline on a projector.
+  # Set to 0 to run at full speed.
+  step-delay-ms: ${SAGA_STEP_DELAY_MS:700}
+
+  # How many times a COMPENSATING transaction is attempted before the saga is declared
+  # COMPENSATION_FAILED. Safe only because every compensating endpoint here is idempotent.
+  compensation-retry-attempts: ${SAGA_COMPENSATION_RETRY_ATTEMPTS:2}
+
+  connect-timeout-ms: ${SAGA_CONNECT_TIMEOUT_MS:3000}
+  read-timeout-ms: ${SAGA_READ_TIMEOUT_MS:15000}
+
+  services:
+    order-url: ${ORDER_SERVICE_URL:http://localhost:8081}
+    inventory-url: ${INVENTORY_SERVICE_URL:http://localhost:8082}
+    payment-url: ${PAYMENT_SERVICE_URL:http://localhost:8083}
+
+logging:
+  level:
+    com.sagademo.saga: INFO
+    org.hibernate.SQL: WARN
+  pattern:
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr([SAGA_ORCHESTRATOR]){green} %clr([saga=%X{sagaId:-none}]){cyan} %clr(%-32.32logger{0}){faint} %msg%n"

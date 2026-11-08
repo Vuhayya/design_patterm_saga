@@ -1,0 +1,86 @@
+# =====================================================================================
+# API GATEWAY - Spring Cloud Gateway, the single entry point for the React frontend
+# =====================================================================================
+server:
+  port: ${API_GATEWAY_PORT:8080}
+
+spring:
+  application:
+    name: api-gateway
+
+  cloud:
+    gateway:
+      server:
+        webflux:
+          # -------------------------------------------------------------------------------
+          # ROUTING TABLE (requirement #15)
+          #   /api/orders/**     -> order-service      :8081
+          #   /api/inventory/**  -> inventory-service  :8082
+          #   /api/payments/**   -> payment-service    :8083
+          #   /api/sagas/**      -> saga-orchestrator  :8084
+          # No path rewriting: each service already serves the same prefix, which keeps the
+          # mapping trivial to explain and trivial to debug.
+          # -------------------------------------------------------------------------------
+          # -------------------------------------------------------------------------------
+          # Each microservice also has its own CORS filter (so it can be called directly while
+          # developing). Without this, a browser would see TWO Access-Control-Allow-Origin
+          # headers on every proxied response - one from the gateway, one from the service -
+          # and reject the response. The gateway's header wins.
+          # -------------------------------------------------------------------------------
+          default-filters:
+            - DedupeResponseHeader=Access-Control-Allow-Origin Access-Control-Allow-Credentials, RETAIN_FIRST
+
+          routes:
+            - id: order-service
+              uri: ${ORDER_SERVICE_URL:http://localhost:8081}
+              predicates:
+                - Path=/api/orders/**
+
+            - id: inventory-service
+              uri: ${INVENTORY_SERVICE_URL:http://localhost:8082}
+              predicates:
+                - Path=/api/inventory/**
+
+            - id: payment-service
+              uri: ${PAYMENT_SERVICE_URL:http://localhost:8083}
+              predicates:
+                - Path=/api/payments/**
+
+            - id: saga-orchestrator
+              uri: ${SAGA_ORCHESTRATOR_URL:http://localhost:8084}
+              predicates:
+                - Path=/api/sagas/**
+
+          # ---------------------------------------------------------------------------------
+          # ONE CORS CONFIGURATION FOR THE WHOLE BACKEND.
+          # The Next.js dev server runs on :3000; allowing any localhost port avoids surprises
+          # if Next picks 3001 because 3000 is already taken.
+          # ---------------------------------------------------------------------------------
+          globalcors:
+            add-to-simple-url-handler-mapping: true
+            cors-configurations:
+              '[/**]':
+                allowedOriginPatterns:
+                  - "http://localhost:*"
+                  - "http://127.0.0.1:*"
+                allowedMethods: [GET, POST, PUT, PATCH, DELETE, OPTIONS]
+                allowedHeaders: "*"
+                allowCredentials: false
+                maxAge: 3600
+
+management:
+  endpoints:
+    web:
+      exposure:
+        include: health,info,gateway
+  endpoint:
+    health:
+      show-details: always
+    gateway:
+      access: unrestricted      # http://localhost:8080/actuator/gateway/routes
+
+logging:
+  level:
+    org.springframework.cloud.gateway: INFO
+  pattern:
+    console: "%clr(%d{HH:mm:ss.SSS}){faint} %clr(%-5level) %clr([API_GATEWAY]){red} %clr(%-32.32logger{0}){faint} %msg%n"
