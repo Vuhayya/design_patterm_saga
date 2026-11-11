@@ -1,43 +1,24 @@
 package com.sagademo.payment.service;
 
 import com.sagademo.payment.dto.SimulationSettingsDto;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+/**
+ * Holds the sticky failure switches of the Payment Service (demo tooling, never persisted).
+ *
+ * <p>Contract only. Controllers and other services depend on this interface, never on the
+ * implementation class.
+ *
+ * @see com.sagademo.payment.service.impl.FailureSimulationServiceImpl
+ */
+public interface FailureSimulationService {
 
-/** Holds the sticky failure switches of the Payment Service (demo tooling, never persisted). */
-@Slf4j
-@Service
-public class FailureSimulationService {
+    SimulationSettingsDto current();
 
-    private final AtomicBoolean failProcessPayment = new AtomicBoolean(false);
-    private final AtomicBoolean failRefundPayment = new AtomicBoolean(false);
+    SimulationSettingsDto update(SimulationSettingsDto settings);
 
-    public SimulationSettingsDto current() {
-        return SimulationSettingsDto.builder()
-                .failProcessPayment(failProcessPayment.get())
-                .failRefundPayment(failRefundPayment.get())
-                .build();
-    }
+    SimulationSettingsDto reset();
 
-    public SimulationSettingsDto update(SimulationSettingsDto settings) {
-        failProcessPayment.set(settings.isFailProcessPayment());
-        failRefundPayment.set(settings.isFailRefundPayment());
-        log.warn("FAILURE SIMULATION UPDATED | processPayment={} refundPayment={}",
-                settings.isFailProcessPayment(), settings.isFailRefundPayment());
-        return current();
-    }
+    boolean shouldFailProcess(boolean requestFlag);
 
-    public SimulationSettingsDto reset() {
-        return update(new SimulationSettingsDto());
-    }
-
-    public boolean shouldFailProcess(boolean requestFlag) {
-        return requestFlag || failProcessPayment.get();
-    }
-
-    public boolean shouldFailRefund(boolean requestFlag) {
-        return requestFlag || failRefundPayment.get();
-    }
+    boolean shouldFailRefund(boolean requestFlag);
 }

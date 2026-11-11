@@ -70,7 +70,7 @@ xác nhận" không thể nằm trong một transaction. Nếu bước thanh to�
   compensation còn lại vẫn được thử (best effort).
 - Trạng thái saga: `PENDING → RUNNING → COMPLETED` hoặc `FAILED → COMPENSATING → COMPENSATED | COMPENSATION_FAILED`.
 
-Code đáng đọc nhất: `saga-orchestrator/.../service/SagaOrchestratorService.java` (vòng lặp forward + stack
+Code đáng đọc nhất: `saga-orchestrator/.../service/impl/SagaOrchestratorServiceImpl.java` (vòng lặp forward + stack
 compensation) và `saga/SagaStep.java` (mỗi bước biết cách làm và cách hoàn tác của chính nó).
 
 ---
@@ -421,7 +421,8 @@ Nên nói thẳng khi thuyết trình:
 pom.xml                  aggregator (Spring Boot 3.5, Java 21) - chỉ để build chung, các service vẫn độc lập
 api-gateway/             định tuyến + CORS
 order-service/           inventory-service/    payment-service/
-saga-orchestrator/       saga/ (SagaStep, 4 step), service/ (SagaOrchestratorService), client/, entity/
+saga-orchestrator/       saga/ (SagaStep, 4 step), service/ (interface) + service/impl/ (cài đặt), client/, entity/
+                         (cả 4 service đều chia tầng service: interface XxxService + impl/XxxServiceImpl)
 frontend/                Next.js + TypeScript + Tailwind (xem frontend/README.md)
 scripts/                 start-backend.ps1, start-frontend.ps1, stop-backend.ps1
 docs/                    presentation-notes.md

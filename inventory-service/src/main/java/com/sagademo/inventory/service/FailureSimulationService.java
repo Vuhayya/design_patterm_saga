@@ -1,43 +1,24 @@
 package com.sagademo.inventory.service;
 
 import com.sagademo.inventory.dto.SimulationSettingsDto;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
 
-import java.util.concurrent.atomic.AtomicBoolean;
+/**
+ * Holds the sticky failure switches of the Inventory Service (demo tooling, never persisted).
+ *
+ * <p>Contract only. Controllers and other services depend on this interface, never on the
+ * implementation class.
+ *
+ * @see com.sagademo.inventory.service.impl.FailureSimulationServiceImpl
+ */
+public interface FailureSimulationService {
 
-/** Holds the sticky failure switches of the Inventory Service (demo tooling, never persisted). */
-@Slf4j
-@Service
-public class FailureSimulationService {
+    SimulationSettingsDto current();
 
-    private final AtomicBoolean failReserveInventory = new AtomicBoolean(false);
-    private final AtomicBoolean failReleaseInventory = new AtomicBoolean(false);
+    SimulationSettingsDto update(SimulationSettingsDto settings);
 
-    public SimulationSettingsDto current() {
-        return SimulationSettingsDto.builder()
-                .failReserveInventory(failReserveInventory.get())
-                .failReleaseInventory(failReleaseInventory.get())
-                .build();
-    }
+    SimulationSettingsDto reset();
 
-    public SimulationSettingsDto update(SimulationSettingsDto settings) {
-        failReserveInventory.set(settings.isFailReserveInventory());
-        failReleaseInventory.set(settings.isFailReleaseInventory());
-        log.warn("FAILURE SIMULATION UPDATED | reserveInventory={} releaseInventory={}",
-                settings.isFailReserveInventory(), settings.isFailReleaseInventory());
-        return current();
-    }
+    boolean shouldFailReserve(boolean requestFlag);
 
-    public SimulationSettingsDto reset() {
-        return update(new SimulationSettingsDto());
-    }
-
-    public boolean shouldFailReserve(boolean requestFlag) {
-        return requestFlag || failReserveInventory.get();
-    }
-
-    public boolean shouldFailRelease(boolean requestFlag) {
-        return requestFlag || failReleaseInventory.get();
-    }
+    boolean shouldFailRelease(boolean requestFlag);
 }

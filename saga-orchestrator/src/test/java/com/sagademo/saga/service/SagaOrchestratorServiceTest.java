@@ -1,5 +1,6 @@
 package com.sagademo.saga.service;
 
+import com.sagademo.saga.service.impl.SagaOrchestratorServiceImpl;
 import com.sagademo.saga.client.RemoteServiceException;
 import com.sagademo.saga.config.SagaProperties;
 import com.sagademo.saga.dto.StartSagaRequest;
@@ -62,7 +63,7 @@ class SagaOrchestratorServiceTest {
                 new FakeStep(SagaStepName.PROCESS_PAYMENT, "payment-service"),
                 new FakeStep(SagaStepName.CONFIRM_ORDER, "order-service")));
 
-        orchestrator = new SagaOrchestratorService(
+        orchestrator = new SagaOrchestratorServiceImpl(
                 definition, recorder, systemStateService, publisher, properties);
 
         request = StartSagaRequest.builder()
@@ -161,7 +162,7 @@ class SagaOrchestratorServiceTest {
     void unexpectedBug_neverEscapes_andLeavesAReadableSaga() {
         SagaDefinition broken = mock(SagaDefinition.class);
         when(broken.steps()).thenThrow(new IllegalStateException("boom"));
-        SagaOrchestratorService service = new SagaOrchestratorService(
+        SagaOrchestratorService service = new SagaOrchestratorServiceImpl(
                 broken, recorder, mock(SystemStateService.class),
                 mock(SagaEventPublisher.class), new SagaProperties());
 

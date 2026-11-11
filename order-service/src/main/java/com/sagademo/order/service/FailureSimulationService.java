@@ -1,58 +1,29 @@
 package com.sagademo.order.service;
 
 import com.sagademo.order.dto.SimulationSettingsDto;
-import lombok.extern.slf4j.Slf4j;
-import org.springframework.stereotype.Service;
-
-import java.util.concurrent.atomic.AtomicBoolean;
 
 /**
- * Holds the sticky, service-level failure switches (see {@link SimulationSettingsDto}).
+ * Holds the sticky, service-level failure switches (see {@code SimulationSettingsDto}).
  *
- * <p>Kept in memory on purpose: it is demo tooling, not business state, so it must never
- * live in the Order database.
+ * <p>Contract only. Controllers and other services depend on this interface, never on the
+ * implementation class.
+ *
+ * @see com.sagademo.order.service.impl.FailureSimulationServiceImpl
  */
-@Slf4j
-@Service
-public class FailureSimulationService {
+public interface FailureSimulationService {
 
-    private final AtomicBoolean failCreateOrder = new AtomicBoolean(false);
-    private final AtomicBoolean failConfirmOrder = new AtomicBoolean(false);
-    private final AtomicBoolean failCancelOrder = new AtomicBoolean(false);
+    SimulationSettingsDto current();
 
-    public SimulationSettingsDto current() {
-        return SimulationSettingsDto.builder()
-                .failCreateOrder(failCreateOrder.get())
-                .failConfirmOrder(failConfirmOrder.get())
-                .failCancelOrder(failCancelOrder.get())
-                .build();
-    }
+    SimulationSettingsDto update(SimulationSettingsDto settings);
 
-    public SimulationSettingsDto update(SimulationSettingsDto settings) {
-        failCreateOrder.set(settings.isFailCreateOrder());
-        failConfirmOrder.set(settings.isFailConfirmOrder());
-        failCancelOrder.set(settings.isFailCancelOrder());
-        log.warn("FAILURE SIMULATION UPDATED | createOrder={} confirmOrder={} cancelOrder={}",
-                settings.isFailCreateOrder(), settings.isFailConfirmOrder(), settings.isFailCancelOrder());
-        return current();
-    }
-
-    public SimulationSettingsDto reset() {
-        return update(new SimulationSettingsDto());
-    }
+    SimulationSettingsDto reset();
 
     /** Effective decision for step CREATE_ORDER: per-request flag OR sticky flag. */
-    public boolean shouldFailCreateOrder(boolean requestFlag) {
-        return requestFlag || failCreateOrder.get();
-    }
+    boolean shouldFailCreateOrder(boolean requestFlag);
 
     /** Effective decision for step CONFIRM_ORDER. */
-    public boolean shouldFailConfirmOrder(boolean requestFlag) {
-        return requestFlag || failConfirmOrder.get();
-    }
+    boolean shouldFailConfirmOrder(boolean requestFlag);
 
     /** Effective decision for the COMPENSATION step CANCEL_ORDER. */
-    public boolean shouldFailCancelOrder(boolean requestFlag) {
-        return requestFlag || failCancelOrder.get();
-    }
+    boolean shouldFailCancelOrder(boolean requestFlag);
 }
