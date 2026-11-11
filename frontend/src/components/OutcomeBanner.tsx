@@ -2,17 +2,17 @@ import { outcomeOf, type Outcome } from "@/lib/saga";
 import type { SagaDetail } from "@/lib/types";
 
 const COPY: Record<Outcome, { text: string; style: string }> = {
-  RUNNING: { text: "Saga in progress...", style: "border-sky-700 bg-sky-950/40 text-sky-200" },
+  RUNNING: { text: "Saga đang chạy...", style: "border-sky-700 bg-sky-950/40 text-sky-200" },
   SUCCESS: {
-    text: "All four local transactions committed - the order is confirmed.",
+    text: "Cả bốn local transaction đã commit - đơn hàng đã được xác nhận.",
     style: "border-emerald-700 bg-emerald-950/40 text-emerald-200",
   },
   RESTORED: {
-    text: "A step failed, every committed step was undone - the system is consistent again.",
+    text: "Một bước bị lỗi, mọi bước đã commit đều được hoàn tác - hệ thống nhất quán trở lại.",
     style: "border-amber-600 bg-amber-950/40 text-amber-200",
   },
   INCONSISTENT: {
-    text: "Compensation failed - the system is left inconsistent and needs manual recovery.",
+    text: "Compensation thất bại - hệ thống bị bất nhất và cần xử lý thủ công.",
     style: "border-fuchsia-600 bg-fuchsia-950/40 text-fuchsia-200",
   },
 };

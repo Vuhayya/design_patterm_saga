@@ -18,7 +18,7 @@ export default function ControlRoomPage() {
 
       {error && (
         <p role="alert" className="rounded-lg border border-red-700 bg-red-950/60 px-4 py-2 text-sm text-red-200">
-          Lost contact with the orchestrator: {error}
+          Mất kết nối với orchestrator: {error}
         </p>
       )}
 

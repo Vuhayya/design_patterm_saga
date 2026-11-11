@@ -5,7 +5,7 @@ import { usePathname } from "next/navigation";
 
 const LINKS = [
   { href: "/", label: "Control Room" },
-  { href: "/how-it-works", label: "How Saga Works" },
+  { href: "/how-it-works", label: "Saga hoạt động thế nào" },
 ];
 
 export function Header() {
@@ -17,9 +17,9 @@ export function Header() {
           <p className="text-xl font-extrabold text-slate-100">
             Saga Pattern <span className="text-sky-400">Demo</span>
           </p>
-          <p className="text-xs text-slate-400">Online Food Ordering · Orchestration · MSS301</p>
+          <p className="text-xs text-slate-400">Đặt món ăn online · Orchestration · MSS301</p>
         </div>
-        <nav aria-label="Main" className="flex gap-2">
+        <nav aria-label="Điều hướng chính" className="flex gap-2">
           {LINKS.map((l) => (
             <Link
               key={l.href}

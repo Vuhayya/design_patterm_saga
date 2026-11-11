@@ -6,13 +6,13 @@
 import type { FailureSimulation, SagaDetail, SystemState } from "./types";
 
 export const STEP_LABEL: Record<string, string> = {
-  CREATE_ORDER: "Create Order",
-  RESERVE_INVENTORY: "Reserve Inventory",
-  PROCESS_PAYMENT: "Process Payment",
-  CONFIRM_ORDER: "Confirm Order",
-  CANCEL_ORDER: "Cancel Order",
-  RELEASE_INVENTORY: "Release Inventory",
-  REFUND_PAYMENT: "Refund Payment",
+  CREATE_ORDER: "Tạo đơn",
+  RESERVE_INVENTORY: "Giữ hàng",
+  PROCESS_PAYMENT: "Thanh toán",
+  CONFIRM_ORDER: "Xác nhận đơn",
+  CANCEL_ORDER: "Huỷ đơn",
+  RELEASE_INVENTORY: "Trả hàng",
+  REFUND_PAYMENT: "Hoàn tiền",
 };
 
 export const SERVICE_LABEL: Record<string, string> = {
@@ -54,14 +54,14 @@ export interface Scenario {
 }
 
 export const SCENARIOS: readonly Scenario[] = [
-  { id: 1, title: "Happy path", hint: "All 4 steps commit", flags: {} },
-  { id: 2, title: "Inventory fails", hint: "Cancel the order", flags: { failReserveInventory: true } },
-  { id: 3, title: "Payment fails", hint: "Release stock, cancel order", flags: { failProcessPayment: true } },
-  { id: 4, title: "Confirm fails", hint: "Refund, release, cancel", flags: { failConfirmOrder: true } },
+  { id: 1, title: "Thành công (happy path)", hint: "Cả 4 bước đều commit", flags: {} },
+  { id: 2, title: "Lỗi giữ hàng", hint: "Huỷ đơn", flags: { failReserveInventory: true } },
+  { id: 3, title: "Lỗi thanh toán", hint: "Trả hàng, huỷ đơn", flags: { failProcessPayment: true } },
+  { id: 4, title: "Lỗi xác nhận đơn", hint: "Hoàn tiền, trả hàng, huỷ đơn", flags: { failConfirmOrder: true } },
   {
     id: 5,
-    title: "Compensation fails",
-    hint: "Payment fails, then the release fails",
+    title: "Lỗi compensation",
+    hint: "Thanh toán lỗi, rồi bước trả hàng cũng lỗi",
     flags: { failProcessPayment: true, failReleaseInventory: true },
   },
 ];
@@ -71,13 +71,13 @@ export const FAILURE_TOGGLES: readonly {
   label: string;
   group: "forward" | "compensation";
 }[] = [
-  { key: "failCreateOrder", label: "Create Order", group: "forward" },
-  { key: "failReserveInventory", label: "Reserve Inventory", group: "forward" },
-  { key: "failProcessPayment", label: "Process Payment", group: "forward" },
-  { key: "failConfirmOrder", label: "Confirm Order", group: "forward" },
-  { key: "failRefundPayment", label: "Refund Payment", group: "compensation" },
-  { key: "failReleaseInventory", label: "Release Inventory", group: "compensation" },
-  { key: "failCancelOrder", label: "Cancel Order", group: "compensation" },
+  { key: "failCreateOrder", label: "Tạo đơn", group: "forward" },
+  { key: "failReserveInventory", label: "Giữ hàng", group: "forward" },
+  { key: "failProcessPayment", label: "Thanh toán", group: "forward" },
+  { key: "failConfirmOrder", label: "Xác nhận đơn", group: "forward" },
+  { key: "failRefundPayment", label: "Hoàn tiền", group: "compensation" },
+  { key: "failReleaseInventory", label: "Trả hàng", group: "compensation" },
+  { key: "failCancelOrder", label: "Huỷ đơn", group: "compensation" },
 ];
 
 /** Which preset (if any) exactly matches the current set of failure flags. */

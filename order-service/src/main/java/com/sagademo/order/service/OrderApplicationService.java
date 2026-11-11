@@ -80,7 +80,7 @@ public class OrderApplicationService {
             logStep(request.getSagaId(), null, "CREATE_ORDER", "FAILED");
             throw new SimulatedFailureException(
                     "ORDER_CREATION_FAILED",
-                    "Simulated failure while creating the order in order-service",
+                    "Lỗi giả lập khi tạo đơn trong order-service",
                     request.getSagaId());
         }
 
@@ -132,13 +132,13 @@ public class OrderApplicationService {
             logStep(request.getSagaId(), orderId, "CONFIRM_ORDER", "FAILED");
             throw new SimulatedFailureException(
                     "ORDER_CONFIRMATION_FAILED",
-                    "Simulated failure while confirming order " + orderId,
+                    "Lỗi giả lập khi xác nhận đơn " + orderId,
                     request.getSagaId());
         }
 
         if (order.getStatus() == OrderStatus.CANCELLED) {
             throw new InvalidOrderStateException(
-                    "Cannot confirm order " + orderId + " because it is already CANCELLED");
+                    "Không thể xác nhận đơn " + orderId + " vì đơn đã CANCELLED");
         }
 
         // Idempotent: confirming an already confirmed order is a no-op, not an error.
@@ -177,15 +177,15 @@ public class OrderApplicationService {
             logStep(request.getSagaId(), orderId, "CANCEL_ORDER (compensation)", "FAILED");
             throw new SimulatedFailureException(
                     "ORDER_CANCELLATION_FAILED",
-                    "Simulated failure while cancelling order " + orderId
-                            + " - the compensating transaction itself failed",
+                    "Lỗi giả lập khi huỷ đơn " + orderId
+                            + " - chính compensating transaction bị lỗi",
                     request.getSagaId());
         }
 
         if (order.getStatus() != OrderStatus.CANCELLED) {
             order.setStatus(OrderStatus.CANCELLED);
             order.setCancellationReason(
-                    request.getReason() == null ? "Cancelled by Saga compensation" : request.getReason());
+                    request.getReason() == null ? "Huỷ bởi Saga compensation" : request.getReason());
             order.setUpdatedAt(Instant.now());
             orderRepository.save(order);
         }

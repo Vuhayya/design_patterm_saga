@@ -22,38 +22,38 @@ export function SagaHistory({
   const sagas = data ?? [];
 
   return (
-    <Card title="Saga History" subtitle="Select a saga to replay its timeline, calls and logs">
+    <Card title="Lịch sử Saga" subtitle="Chọn một saga để xem lại timeline, lời gọi và log">
       {sagas.length === 0 ? (
-        <p className="py-4 text-center text-sm text-slate-500">No sagas yet.</p>
+        <p className="py-4 text-center text-sm text-slate-500">Chưa có saga nào.</p>
       ) : (
         <div className="overflow-x-auto">
           <table className="w-full text-sm">
-            <caption className="sr-only">Most recent sagas, newest first</caption>
+            <caption className="sr-only">Các saga gần đây, mới nhất trước</caption>
             <thead>
               <tr className="text-left text-xs tracking-wide text-slate-400 uppercase">
                 <th scope="col" className="pb-2">
                   Saga
                 </th>
                 <th scope="col" className="pb-2">
-                  Customer
+                  Khách hàng
                 </th>
                 <th scope="col" className="pb-2">
-                  Item
+                  Món
                 </th>
                 <th scope="col" className="pb-2">
-                  Total
+                  Tổng tiền
                 </th>
                 <th scope="col" className="pb-2">
-                  Status
+                  Trạng thái
                 </th>
                 <th scope="col" className="pb-2">
-                  Failed at
+                  Lỗi tại
                 </th>
                 <th scope="col" className="pb-2">
-                  Started
+                  Bắt đầu
                 </th>
                 <th scope="col" className="pb-2 text-right">
-                  Duration
+                  Thời gian
                 </th>
               </tr>
             </thead>

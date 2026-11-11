@@ -8,14 +8,14 @@ export function ServiceCommunication({ saga }: { saga: SagaDetail | null }) {
 
   return (
     <Card
-      title="Service Communication"
-      subtitle="Every real HTTP call the orchestrator made, in order"
-      right={<span className="text-sm text-slate-400">{calls.length} calls</span>}
+      title="Giao tiếp giữa các service"
+      subtitle="Mọi lời gọi HTTP thật mà orchestrator đã thực hiện, theo thứ tự"
+      right={<span className="text-sm text-slate-400">{calls.length} lời gọi</span>}
     >
       {calls.length === 0 ? (
-        <p className="py-6 text-center text-sm text-slate-500">No calls yet - start a saga.</p>
+        <p className="py-6 text-center text-sm text-slate-500">Chưa có lời gọi nào - hãy bắt đầu một saga.</p>
       ) : (
-        <ol className="max-h-[420px] space-y-2 overflow-y-auto pr-1" tabIndex={0} aria-label="HTTP calls">
+        <ol className="max-h-[420px] space-y-2 overflow-y-auto pr-1" tabIndex={0} aria-label="Các lời gọi HTTP">
           {calls.map((c) => {
             const ok = c.outcome === "SUCCESS";
             const compensation = c.stepType === "COMPENSATION";
@@ -32,7 +32,7 @@ export function ServiceCommunication({ saga }: { saga: SagaDetail | null }) {
                     {SERVICE_LABEL[c.sourceService] ?? c.sourceService}
                   </span>
                   <span
-                    aria-label={compensation ? "compensates" : "calls"}
+                    aria-label={compensation ? "bù trừ" : "gọi"}
                     className={compensation ? "text-amber-400" : "text-sky-400"}
                   >
                     {compensation ? "⟲" : "→"}

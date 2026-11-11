@@ -76,7 +76,7 @@ public class InventoryApplicationService {
             logStep(request.getSagaId(), request.getOrderId(), "RESERVE_INVENTORY", "FAILED");
             throw new SimulatedFailureException(
                     "INVENTORY_RESERVATION_FAILED",
-                    "Simulated failure while reserving %d unit(s) of %s in inventory-service"
+                    "Lỗi giả lập khi giữ %d sản phẩm %s trong inventory-service"
                             .formatted(request.getQuantity(), request.getProductId()),
                     request.getSagaId());
         }
@@ -141,8 +141,8 @@ public class InventoryApplicationService {
             logStep(request.getSagaId(), null, "RELEASE_INVENTORY (compensation)", "FAILED");
             throw new SimulatedFailureException(
                     "INVENTORY_RELEASE_FAILED",
-                    "Simulated failure while releasing the inventory reservation of saga "
-                            + request.getSagaId() + " - the compensating transaction itself failed",
+                    "Lỗi giả lập khi trả lại hàng đã giữ của saga "
+                            + request.getSagaId() + " - chính compensating transaction bị lỗi",
                     request.getSagaId());
         }
 

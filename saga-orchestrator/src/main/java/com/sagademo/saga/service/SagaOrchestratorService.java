@@ -96,7 +96,7 @@ public class SagaOrchestratorService {
         SagaExecution saga = recorder.createSaga(request, steps, stateBefore);
 
         recorder.log(saga.getSagaId(), "INFO", PHASE_EXECUTION,
-                "Saga created for customer %s | %s x%d | total %s"
+                "Đã tạo saga cho khách %s | %s x%d | tổng %s"
                         .formatted(request.getCustomerName(), request.getProductId(),
                                 request.getQuantity(), saga.getTotalAmount()));
         describePlannedFailures(saga.getSagaId(), request.getFailureSimulation());
@@ -123,7 +123,7 @@ public class SagaOrchestratorService {
             Deque<SagaStep> completedSteps = new ArrayDeque<>();
 
             recorder.markRunning(sagaId);
-            recorder.log(sagaId, "INFO", PHASE_EXECUTION, "Saga started");
+            recorder.log(sagaId, "INFO", PHASE_EXECUTION, "Saga bắt đầu chạy");
             eventPublisher.publish(SagaEvent.of("SAGA_STARTED", sagaId, null, null, "RUNNING", null));
 
             for (SagaStep step : sagaDefinition.steps()) {
@@ -142,10 +142,10 @@ public class SagaOrchestratorService {
             // Defensive: a bug in the orchestrator itself must still leave a readable saga.
             log.error("Unexpected orchestrator error for saga {}", sagaId, unexpected);
             recorder.log(sagaId, "ERROR", PHASE_EXECUTION,
-                    "Unexpected orchestrator error: " + unexpected.getMessage());
+                    "Lỗi không mong muốn trong orchestrator: " + unexpected.getMessage());
             recorder.markCompensationFailed(sagaId,
-                    "The orchestrator itself failed: " + unexpected.getMessage()
-                            + ". Inspect the three service databases manually.");
+                    "Chính orchestrator bị lỗi: " + unexpected.getMessage()
+                            + ". Hãy kiểm tra thủ công database của ba service.");
         } finally {
             MDC.clear();
         }
@@ -163,7 +163,7 @@ public class SagaOrchestratorService {
         recorder.updateCurrentStep(sagaId, step.name());
         recorder.forwardStepStarted(sagaId, step);
         recorder.log(sagaId, "INFO", PHASE_EXECUTION,
-                "%s -> calling %s ...".formatted(step.name(), step.targetService()));
+                "%s -> đang gọi %s ...".formatted(step.name(), step.targetService()));
         eventPublisher.publish(SagaEvent.of("STEP_STARTED", sagaId, context.getOrderId(),
                 step.name(), "RUNNING", "calling " + step.targetService()));
 
@@ -179,7 +179,7 @@ public class SagaOrchestratorService {
             completedSteps.push(step);
 
             recorder.log(sagaId, "SUCCESS", PHASE_EXECUTION,
-                    "%s completed successfully%s".formatted(step.name(), describeResult(step, context)));
+                    "%s hoàn thành%s".formatted(step.name(), describeResult(step, context)));
             eventPublisher.publish(SagaEvent.of("STEP_COMPLETED", sagaId, context.getOrderId(),
                     step.name(), "COMPLETED", null));
             return true;
@@ -189,11 +189,11 @@ public class SagaOrchestratorService {
             recorder.markFailed(sagaId, step.name(), failure.describe());
             recorder.markRemainingStepsSkipped(sagaId);
             recorder.log(sagaId, "ERROR", PHASE_EXECUTION,
-                    "%s FAILED in %s: %s".formatted(step.name(), failure.getService(), failure.getMessage()));
+                    "%s LỖI tại %s: %s".formatted(step.name(), failure.getService(), failure.getMessage()));
             eventPublisher.publish(SagaEvent.of("STEP_FAILED", sagaId, context.getOrderId(),
                     step.name(), "FAILED", failure.getMessage()));
 
-            context.setCompensationReason("Saga %s was compensated because %s failed in %s: %s"
+            context.setCompensationReason("Saga %s được bù trừ vì bước %s lỗi tại %s: %s"
                     .formatted(sagaId, step.name(), failure.getService(), failure.getMessage()));
             return false;
         }
@@ -203,7 +203,7 @@ public class SagaOrchestratorService {
         String sagaId = context.getSagaId();
         recorder.markCompleted(sagaId);
         recorder.log(sagaId, "SUCCESS", PHASE_EXECUTION,
-                "SAGA COMPLETED - all 4 local transactions committed, order %s is CONFIRMED"
+                "SAGA COMPLETED - cả 4 local transaction đã commit, đơn %s đã CONFIRMED"
                         .formatted(context.getOrderId()));
         recorder.saveStateAfter(sagaId, systemStateService.capture(
                 "AFTER SAGA (COMPLETED)", context.getProductId(),
@@ -236,7 +236,7 @@ public class SagaOrchestratorService {
 
         recorder.markCompensating(sagaId);
         recorder.log(sagaId, "WARN", PHASE_COMPENSATION,
-                "STARTING COMPENSATION - %d committed step(s) must be undone in reverse order: %s"
+                "BẮT ĐẦU COMPENSATION - %d bước đã commit cần hoàn tác theo thứ tự ngược: %s"
                         .formatted(completedSteps.size(), namesOf(completedSteps)));
         eventPublisher.publish(SagaEvent.of("COMPENSATION_STARTED", sagaId, context.getOrderId(),
                 null, "COMPENSATING", completedSteps.size() + " step(s) to undo"));
@@ -248,7 +248,7 @@ public class SagaOrchestratorService {
 
             if (!step.hasCompensation()) {
                 recorder.log(sagaId, "INFO", PHASE_COMPENSATION,
-                        "%s needs no compensating transaction (nothing of its own was committed)"
+                        "%s không cần compensating transaction (bản thân nó chưa commit gì)"
                                 .formatted(step.name()));
                 continue;
             }
@@ -259,15 +259,15 @@ public class SagaOrchestratorService {
         if (failures.isEmpty()) {
             recorder.markCompensated(sagaId);
             recorder.log(sagaId, "SUCCESS", PHASE_COMPENSATION,
-                    "SAGA COMPENSATED - every committed step was undone, the system is consistent again");
+                    "SAGA COMPENSATED - mọi bước đã commit đều được hoàn tác, hệ thống nhất quán trở lại");
             eventPublisher.publish(SagaEvent.of("SAGA_COMPENSATED", sagaId, context.getOrderId(),
                     null, "COMPENSATED", null));
             log.warn("SAGA {} COMPENSATED", sagaId);
         } else {
-            String hint = "Compensation failed for: %s. The system is INCONSISTENT and needs manual "
+            String hint = "Compensation thất bại ở: %s. Hệ thống đang BẤT NHẤT và cần xử lý "
                     .formatted(String.join(", ", failures))
-                    + "recovery (retry the compensation, or fix the data in the owning service). "
-                    + "This is a real limitation of the Saga pattern: it does not guarantee rollback.";
+                    + "thủ công (chạy lại compensation, hoặc sửa dữ liệu ở service sở hữu nó). "
+                    + "Đây là giới hạn thật của Saga pattern: nó không đảm bảo hoàn tác được.";
             recorder.markCompensationFailed(sagaId, hint);
             recorder.log(sagaId, "ERROR", PHASE_COMPENSATION, "SAGA COMPENSATION FAILED - " + hint);
             eventPublisher.publish(SagaEvent.of("SAGA_COMPENSATION_FAILED", sagaId, context.getOrderId(),
@@ -289,10 +289,10 @@ public class SagaOrchestratorService {
             pauseForPresentation();
             recorder.compensationStarted(sagaId, step);
             recorder.log(sagaId, "WARN", PHASE_COMPENSATION,
-                    "%s -> undoing %s via %s%s".formatted(
+                    "%s -> hoàn tác %s qua %s%s".formatted(
                             step.compensationName(), step.name(),
                             step.compensationAction().targetService(),
-                            attempt > 1 ? " (retry %d/%d)".formatted(attempt, maxAttempts) : ""));
+                            attempt > 1 ? " (thử lại %d/%d)".formatted(attempt, maxAttempts) : ""));
             eventPublisher.publish(SagaEvent.of("COMPENSATION_STEP_STARTED", sagaId, context.getOrderId(),
                     step.compensationName(), "RUNNING", "attempt " + attempt));
 
@@ -300,7 +300,7 @@ public class SagaOrchestratorService {
                 step.compensate(context);
                 recorder.compensationCompleted(sagaId, step);
                 recorder.log(sagaId, "SUCCESS", PHASE_COMPENSATION,
-                        "%s completed - %s is undone".formatted(step.compensationName(), step.name()));
+                        "%s hoàn thành - %s đã được hoàn tác".formatted(step.compensationName(), step.name()));
                 eventPublisher.publish(SagaEvent.of("COMPENSATION_STEP_COMPLETED", sagaId,
                         context.getOrderId(), step.compensationName(), "COMPENSATED", null));
                 return;
@@ -308,7 +308,7 @@ public class SagaOrchestratorService {
             } catch (RemoteServiceException failure) {
                 recorder.compensationFailed(sagaId, step, failure.describe());
                 recorder.log(sagaId, "ERROR", PHASE_COMPENSATION,
-                        "%s FAILED (attempt %d/%d): %s".formatted(
+                        "%s LỖI (lần %d/%d): %s".formatted(
                                 step.compensationName(), attempt, maxAttempts, failure.getMessage()));
                 eventPublisher.publish(SagaEvent.of("COMPENSATION_STEP_FAILED", sagaId,
                         context.getOrderId(), step.compensationName(), "COMPENSATION_FAILED",
@@ -357,11 +357,11 @@ public class SagaOrchestratorService {
         }
         if (failures.anyForwardFailure()) {
             recorder.log(sagaId, "WARN", PHASE_EXECUTION,
-                    "Failure simulation is ON for a forward step: " + describeFlags(failures, true));
+                    "Đang BẬT giả lập lỗi cho bước forward: " + describeFlags(failures, true));
         }
         if (failures.anyCompensationFailure()) {
             recorder.log(sagaId, "WARN", PHASE_EXECUTION,
-                    "Failure simulation is ON for a compensating transaction: "
+                    "Đang BẬT giả lập lỗi cho compensating transaction: "
                             + describeFlags(failures, false));
         }
     }

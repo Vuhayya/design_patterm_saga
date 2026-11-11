@@ -31,7 +31,7 @@ async function request<T>(path: string, init?: RequestInit): Promise<T> {
       signal: AbortSignal.timeout(REQUEST_TIMEOUT_MS),
     });
   } catch {
-    throw new ApiError(`Cannot reach the API Gateway at ${API_BASE}. Is the backend running?`, null, true);
+    throw new ApiError(`Không kết nối được API Gateway tại ${API_BASE}. Backend đã chạy chưa?`, null, true);
   }
 
   if (!res.ok) {

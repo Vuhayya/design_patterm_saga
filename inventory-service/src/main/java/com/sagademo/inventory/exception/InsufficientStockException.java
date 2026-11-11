@@ -10,7 +10,7 @@ package com.sagademo.inventory.exception;
 public class InsufficientStockException extends RuntimeException {
 
     public InsufficientStockException(String productId, int requested, int available) {
-        super("Insufficient stock for product %s: requested %d, available %d"
+        super("Không đủ hàng cho sản phẩm %s: cần %d, còn %d"
                 .formatted(productId, requested, available));
     }
 }

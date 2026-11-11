@@ -37,7 +37,7 @@ function StepBox({
       {row && row.durationMs > 0 && (
         <p className="mt-2 text-xs text-slate-400">
           {formatDuration(row.durationMs)}
-          {row.attempts > 1 ? ` · ${row.attempts} attempts` : ""}
+          {row.attempts > 1 ? ` · ${row.attempts} lần thử` : ""}
         </p>
       )}
       {row?.errorMessage && (
@@ -87,13 +87,13 @@ export function SagaTimeline({ saga }: { saga: SagaDetail | null }) {
   return (
     <Card
       title="Saga Timeline"
-      subtitle="Each box is one local transaction in a different microservice"
+      subtitle="Mỗi ô là một local transaction ở một microservice khác nhau"
       right={saga && <StatusBadge status={saga.status} large />}
     >
       <OutcomeBanner saga={saga} />
 
-      <p className="mt-3 mb-2 text-xs font-bold tracking-wide text-slate-500 uppercase">Forward transactions</p>
-      <StepRow label="Forward transactions">
+      <p className="mt-3 mb-2 text-xs font-bold tracking-wide text-slate-500 uppercase">Giao dịch xuôi (forward)</p>
+      <StepRow label="Giao dịch xuôi">
         {FORWARD_STEPS.map((f, i) => (
           <StepBox key={f.step} index={i + 1} name={f.step} service={f.service} row={find(f.step, "FORWARD")} />
         ))}
@@ -102,9 +102,9 @@ export function SagaTimeline({ saga }: { saga: SagaDetail | null }) {
       <p
         className={`mt-5 mb-2 text-xs font-bold tracking-wide uppercase ${compensating ? "text-amber-400" : "text-slate-500"}`}
       >
-        Compensating transactions (reverse order)
+        Giao dịch bù trừ (compensation, chạy theo thứ tự ngược)
       </p>
-      <StepRow label="Compensating transactions" dimmed={!compensating}>
+      <StepRow label="Giao dịch bù trừ" dimmed={!compensating}>
         {COMPENSATION_STEPS.map((c, i) => (
           <StepBox
             key={c.step}
@@ -112,19 +112,19 @@ export function SagaTimeline({ saga }: { saga: SagaDetail | null }) {
             name={c.step}
             service={c.service}
             row={find(c.step, "COMPENSATION")}
-            note={`undoes ${STEP_LABEL[c.undoes]}`}
+            note={`hoàn tác: ${STEP_LABEL[c.undoes]}`}
           />
         ))}
       </StepRow>
 
       {saga?.failureReason && (
         <p className="mt-4 rounded-lg border border-red-800 bg-red-950/40 px-3 py-2 text-sm text-red-200">
-          <b>Why it failed:</b> {saga.failureReason}
+          <b>Lý do lỗi:</b> {saga.failureReason}
         </p>
       )}
       {saga?.manualRecoveryRequired && saga.recoveryHint && (
         <p className="mt-3 rounded-lg border border-fuchsia-600 bg-fuchsia-950/40 px-3 py-2 text-sm text-fuchsia-200">
-          <b>⚠ Manual recovery required:</b> {saga.recoveryHint}
+          <b>⚠ Cần xử lý thủ công:</b> {saga.recoveryHint}
         </p>
       )}
     </Card>

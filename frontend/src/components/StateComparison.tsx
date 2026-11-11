@@ -4,10 +4,10 @@ import { Card } from "./Card";
 
 type Cell = string | number | null;
 const ROWS: { label: string; get: (s: SystemState) => Cell }[] = [
-  { label: "Order status", get: (s) => s.orderStatus },
-  { label: "Inventory reserved", get: (s) => s.inventoryReservedUnits },
-  { label: "Inventory available", get: (s) => s.inventoryAvailableUnits },
-  { label: "Payment status", get: (s) => s.paymentStatus },
+  { label: "Trạng thái đơn", get: (s) => s.orderStatus },
+  { label: "Tồn kho đang giữ", get: (s) => s.inventoryReservedUnits },
+  { label: "Tồn kho còn bán", get: (s) => s.inventoryAvailableUnits },
+  { label: "Trạng thái thanh toán", get: (s) => s.paymentStatus },
 ];
 
 function cellColor(label: string, value: Cell): string {
@@ -16,45 +16,45 @@ function cellColor(label: string, value: Cell): string {
   if (v === "CANCELLED" || v === "REFUNDED") return "text-amber-300";
   if (v === "FAILED") return "text-red-300";
   if (v === "NOT_CREATED" || v === "NOT_PROCESSED") return "text-slate-400";
-  return label.startsWith("Inventory") ? "text-sky-300" : "text-slate-200";
+  return label.startsWith("Tồn kho") ? "text-sky-300" : "text-slate-200";
 }
 
 export function StateComparison({ saga }: { saga: SagaDetail | null }) {
   const before = saga?.stateBefore ?? null;
   // While the saga runs there is no "after" yet - show the live state instead.
   const after = saga?.stateAfter ?? saga?.stateNow ?? null;
-  const afterLabel = saga?.stateAfter ? "After" : saga ? "Now (live)" : "After";
+  const afterLabel = saga?.stateAfter ? "Sau" : saga ? "Hiện tại (live)" : "Sau";
   const outcome = outcomeOf(saga);
 
   return (
     <Card
-      title="State Comparison"
-      subtitle="Data read from the real services before and after the saga"
+      title="So sánh trạng thái"
+      subtitle="Dữ liệu đọc từ các service thật, trước và sau saga"
       right={
         outcome === "INCONSISTENT" ? (
           <span className="rounded-full bg-fuchsia-900/60 px-3 py-1 text-xs font-bold text-fuchsia-300">
-            Inconsistent
+            Bất nhất
           </span>
         ) : outcome === "RESTORED" ? (
           <span className="rounded-full bg-amber-900/60 px-3 py-1 text-xs font-bold text-amber-300">
-            Stock restored
+            Đã trả lại hàng
           </span>
         ) : outcome === "SUCCESS" ? (
           <span className="rounded-full bg-emerald-900/60 px-3 py-1 text-xs font-bold text-emerald-300">
-            Goal reached
+            Thành công
           </span>
         ) : null
       }
     >
       <table className="w-full text-sm">
-        <caption className="sr-only">System state before the saga and after it</caption>
+        <caption className="sr-only">Trạng thái hệ thống trước và sau saga</caption>
         <thead>
           <tr className="text-left text-xs tracking-wide text-slate-400 uppercase">
             <th scope="col" className="pb-2 font-semibold">
-              Measure
+              Chỉ số
             </th>
             <th scope="col" className="pb-2 font-semibold">
-              Before
+              Trước
             </th>
             <th scope="col" className="pb-2 font-semibold">
               {afterLabel}
@@ -88,7 +88,7 @@ export function StateComparison({ saga }: { saga: SagaDetail | null }) {
       </table>
       {outcome === "INCONSISTENT" && saga?.status === "COMPENSATION_FAILED" && (
         <p className="mt-3 text-xs text-fuchsia-300">
-          Compare the reserved units: the stock was NOT given back. This is the limit of the Saga pattern.
+          Hãy so sánh số lượng đang giữ: hàng KHÔNG được trả lại. Đây là giới hạn của Saga pattern.
         </p>
       )}
     </Card>

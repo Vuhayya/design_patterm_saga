@@ -90,9 +90,9 @@ describe("SagaTimeline", () => {
       steps: [step("RELEASE_INVENTORY", "COMPENSATION", "COMPENSATION_FAILED")],
     } as SagaDetail;
     render(<SagaTimeline saga={saga} />);
-    expect(screen.getByText(/Manual recovery required/)).toBeInTheDocument();
+    expect(screen.getByText(/Cần xử lý thủ công/)).toBeInTheDocument();
     const outcome = screen.getByTestId("outcome");
     expect(outcome).toHaveAttribute("data-outcome", "INCONSISTENT");
-    expect(within(outcome).getByText(/inconsistent/)).toBeInTheDocument();
+    expect(within(outcome).getByText(/bất nhất/)).toBeInTheDocument();
   });
 });

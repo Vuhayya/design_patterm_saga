@@ -53,7 +53,7 @@ export function ControlPanel({ busy, onStarted, onReset }: Props) {
     setError(null);
     try {
       const res = await api.startSaga({
-        customerName: customer.trim() || "Guest",
+        customerName: customer.trim() || "Khách",
         productId: product.productId,
         productName: product.productName,
         quantity,
@@ -80,7 +80,7 @@ export function ControlPanel({ busy, onStarted, onReset }: Props) {
   }
 
   return (
-    <Card title="Control Room" subtitle="Pick a scenario, then start the distributed transaction">
+    <Card title="Control Room" subtitle="Chọn kịch bản rồi bắt đầu giao dịch phân tán">
       <form
         onSubmit={(e) => {
           e.preventDefault();
@@ -94,24 +94,24 @@ export function ControlPanel({ busy, onStarted, onReset }: Props) {
         />
 
         <fieldset disabled={locked} className="mt-4 space-y-3 border-t border-slate-800 pt-4">
-          <legend className="sr-only">Order</legend>
+          <legend className="sr-only">Đơn hàng</legend>
           <label className="block text-sm text-slate-300">
-            Customer
+            Khách hàng
             <input value={customer} onChange={(e) => setCustomer(e.target.value)} className={FIELD} />
           </label>
           <div className="grid grid-cols-3 gap-3">
             <label className="col-span-2 block text-sm text-slate-300">
-              Dish
+              Món
               <select value={productId} onChange={(e) => setProductId(e.target.value)} className={FIELD}>
                 {menu.map((m) => (
                   <option key={m.productId} value={m.productId}>
-                    {m.productName} - {m.availableUnits} left
+                    {m.productName} - còn {m.availableUnits}
                   </option>
                 ))}
               </select>
             </label>
             <label className="block text-sm text-slate-300">
-              Qty
+              SL
               <input
                 type="number"
                 min={1}
@@ -123,7 +123,7 @@ export function ControlPanel({ busy, onStarted, onReset }: Props) {
           </div>
           {product && (
             <p className="text-sm text-slate-400">
-              Total: <span className="font-bold text-slate-100">{formatVnd(product.unitPrice * quantity)}</span>
+              Tổng: <span className="font-bold text-slate-100">{formatVnd(product.unitPrice * quantity)}</span>
             </p>
           )}
         </fieldset>
@@ -147,16 +147,16 @@ export function ControlPanel({ busy, onStarted, onReset }: Props) {
             disabled={locked || !product}
             className="flex-1 rounded-lg bg-sky-600 px-4 py-3 text-base font-extrabold text-white transition hover:bg-sky-500 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-300 disabled:cursor-not-allowed disabled:opacity-40"
           >
-            {busy ? "Saga running..." : "▶ START SAGA"}
+            {busy ? "Saga đang chạy..." : "▶ BẮT ĐẦU SAGA"}
           </button>
           <button
             type="button"
             onClick={reset}
             disabled={busy}
-            title="Wipe all service databases and re-seed the stock"
+            title="Xoá dữ liệu của mọi service và nạp lại tồn kho"
             className="rounded-lg border border-slate-600 px-4 py-3 text-sm font-bold text-slate-200 hover:bg-slate-800 focus-visible:outline-2 focus-visible:outline-offset-2 focus-visible:outline-sky-400 disabled:opacity-40"
           >
-            Reset data
+            Reset dữ liệu
           </button>
         </div>
       </form>

@@ -80,7 +80,7 @@ public class PaymentApplicationService {
         }
 
         if (failureSimulation.shouldFailProcess(request.isSimulateFailure())) {
-            String reason = "Simulated failure: the payment gateway declined the charge of %s for order %s"
+            String reason = "Lỗi giả lập: cổng thanh toán từ chối (declined) khoản thu %s cho đơn %s"
                     .formatted(request.getAmount(), request.getOrderId());
 
             // Audit row: the attempt really happened and really failed.
@@ -125,8 +125,8 @@ public class PaymentApplicationService {
             logStep(request.getSagaId(), null, "REFUND_PAYMENT (compensation)", "FAILED");
             throw new SimulatedFailureException(
                     "PAYMENT_REFUND_FAILED",
-                    "Simulated failure while refunding the payment of saga " + request.getSagaId()
-                            + " - the compensating transaction itself failed",
+                    "Lỗi giả lập khi hoàn tiền của saga " + request.getSagaId()
+                            + " - chính compensating transaction bị lỗi",
                     request.getSagaId());
         }
 

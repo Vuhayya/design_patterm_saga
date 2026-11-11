@@ -23,15 +23,15 @@ export function LiveLog({ saga }: { saga: SagaDetail | null }) {
   }, [logs.length]);
 
   return (
-    <Card title="Live Log" subtitle="What the orchestrator is deciding, as it happens">
+    <Card title="Live Log" subtitle="Orchestrator đang quyết định gì, theo thời gian thực">
       <div
         ref={containerRef}
         role="log"
-        aria-label="Saga log"
+        aria-label="Log của saga"
         tabIndex={0}
         className="h-[420px] overflow-y-auto rounded-lg bg-black/60 p-3 font-mono text-xs leading-relaxed focus-visible:outline-2 focus-visible:outline-sky-400"
       >
-        {logs.length === 0 && <p className="text-slate-500">Waiting for a saga...</p>}
+        {logs.length === 0 && <p className="text-slate-500">Đang chờ saga...</p>}
         {logs.map((l) => (
           <div key={l.sequence} className={LEVEL_STYLE[l.level] ?? "text-slate-300"}>
             <span className="text-slate-500">{formatTime(l.timestamp)} </span>

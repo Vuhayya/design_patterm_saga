@@ -11,7 +11,7 @@ export function ScenarioPicker({
 }) {
   return (
     <fieldset disabled={disabled} className="grid grid-cols-1 gap-2">
-      <legend className="mb-2 text-sm font-bold text-slate-200">Scenario</legend>
+      <legend className="mb-2 text-sm font-bold text-slate-200">Kịch bản</legend>
       {SCENARIOS.map((s) => {
         const active = activeId === s.id;
         return (

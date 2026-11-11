@@ -20,7 +20,7 @@ describe("api client", () => {
     const err = await api.menu().catch((e) => e);
     expect(err).toBeInstanceOf(ApiError);
     expect(err.network).toBe(true);
-    expect(err.message).toMatch(/Cannot reach the API Gateway/);
+    expect(err.message).toMatch(/Không kết nối được API Gateway/);
   });
 
   it("surfaces the server's message on an HTTP error", async () => {

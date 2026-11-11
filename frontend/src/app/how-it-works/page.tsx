@@ -21,41 +21,40 @@ export default function HowSagaWorksPage() {
 
   return (
     <div className="mx-auto max-w-[1100px] space-y-5 px-6 py-6">
-      <Card title="What is the Saga pattern?" subtitle="A distributed transaction without a distributed lock">
+      <Card title="Saga pattern là gì?" subtitle="Giao dịch phân tán mà không cần khoá phân tán">
         <p className="mb-4 text-slate-300">
-          In a monolith one database transaction makes an order, a stock reservation and a payment all-or-nothing. With
-          microservices each service owns its own database, so no single transaction can span them. A{" "}
-          <b className="text-sky-300">Saga</b> replaces that one big transaction with a sequence of{" "}
-          <b className="text-sky-300">local transactions</b>. If one fails, the Saga runs{" "}
-          <b className="text-amber-300">compensating transactions</b> that semantically undo the ones that already
-          committed.
+          Trong một ứng dụng monolith, một transaction của database giúp việc tạo đơn, giữ hàng và thanh toán xảy ra
+          theo kiểu &quot;tất cả hoặc không gì cả&quot;. Với microservice, mỗi service sở hữu database riêng nên không
+          có transaction nào trải qua được tất cả. <b className="text-sky-300">Saga</b> thay transaction lớn đó bằng một
+          chuỗi <b className="text-sky-300">local transaction</b>. Nếu một bước lỗi, Saga chạy các{" "}
+          <b className="text-amber-300">compensating transaction</b> để hoàn tác (về mặt nghiệp vụ) những bước đã commit.
         </p>
         <div className="grid gap-3 md:grid-cols-3">
-          <Point title="1 · Local transactions">
-            Every step commits immediately in the service that owns the data. Nothing is held open and nothing is locked
-            across services.
+          <Point title="1 · Local transaction">
+            Mỗi bước commit ngay trong service sở hữu dữ liệu. Không giữ transaction mở, không khoá dữ liệu xuyên
+            service.
           </Point>
-          <Point title="2 · Compensation, not rollback">
-            A committed change cannot be rolled back. It is undone by a new business action: cancel the order, release
-            the stock, refund the payment.
+          <Point title="2 · Bù trừ, không phải rollback">
+            Thay đổi đã commit thì không rollback được. Nó được hoàn tác bằng một hành động nghiệp vụ mới: huỷ đơn, trả
+            hàng, hoàn tiền.
           </Point>
-          <Point title="3 · Reverse order">
-            The orchestrator remembers the steps that succeeded on a stack and undoes them last-in, first-out: refund
-            before releasing stock before cancelling the order.
+          <Point title="3 · Thứ tự ngược">
+            Orchestrator ghi các bước thành công vào một stack và hoàn tác theo kiểu vào sau, ra trước (LIFO): hoàn tiền
+            trước, trả hàng sau, huỷ đơn cuối cùng.
           </Point>
         </div>
       </Card>
 
       <Card
-        title="This demo's saga"
-        subtitle="Loaded live from the orchestrator's code (GET /api/sagas/definition)"
+        title="Saga trong demo này"
+        subtitle="Đọc trực tiếp từ code của orchestrator (GET /api/sagas/definition)"
         right={
           <span className="rounded-full bg-sky-900/60 px-3 py-1 text-xs font-bold text-sky-300">
             {def?.sagaStyle ?? "..."}
           </span>
         }
       >
-        {error && !def && <p className="text-sm text-red-300">Backend not reachable: {error}</p>}
+        {error && !def && <p className="text-sm text-red-300">Không kết nối được backend: {error}</p>}
         {def && (
           <div className="overflow-x-auto">
             <table className="w-full text-sm">
@@ -63,9 +62,9 @@ export default function HowSagaWorksPage() {
                 <tr className="text-left text-xs tracking-wide text-slate-500 uppercase">
                   <th className="pb-2">#</th>
                   <th className="pb-2">Local transaction</th>
-                  <th className="pb-2">Owner</th>
+                  <th className="pb-2">Service</th>
                   <th className="pb-2">Compensating transaction</th>
-                  <th className="pb-2">Owner</th>
+                  <th className="pb-2">Service</th>
                 </tr>
               </thead>
               <tbody>
@@ -81,7 +80,7 @@ export default function HowSagaWorksPage() {
                           {STEP_LABEL[s.compensation] ?? s.compensation}
                         </>
                       ) : (
-                        <span className="font-normal text-slate-500">none - last step, nothing of its own to undo</span>
+                        <span className="font-normal text-slate-500">không có - bước cuối, không có gì để hoàn tác</span>
                       )}
                     </td>
                     <td className="py-3 text-slate-300">
@@ -93,11 +92,11 @@ export default function HowSagaWorksPage() {
             </table>
             <div className="mt-4 grid gap-3 md:grid-cols-2">
               <div className="rounded-lg bg-slate-950/60 p-3 font-mono text-xs text-slate-300">
-                <div className="mb-1 font-sans text-xs font-bold text-slate-500 uppercase">Happy path</div>
+                <div className="mb-1 font-sans text-xs font-bold text-slate-500 uppercase">Thành công (happy path)</div>
                 T1 → T2 → T3 → T4 → COMPLETED
               </div>
               <div className="rounded-lg bg-slate-950/60 p-3 font-mono text-xs text-amber-200">
-                <div className="mb-1 font-sans text-xs font-bold text-slate-500 uppercase">If T3 fails</div>
+                <div className="mb-1 font-sans text-xs font-bold text-slate-500 uppercase">Nếu T3 lỗi</div>
                 T1 → T2 → T3 ✕ → C2 → C1 → COMPENSATED
               </div>
             </div>
@@ -105,7 +104,7 @@ export default function HowSagaWorksPage() {
         )}
       </Card>
 
-      <Card title="Saga states" subtitle="The life cycle of one saga">
+      <Card title="Các trạng thái của Saga" subtitle="Vòng đời của một saga">
         <div className="flex flex-wrap items-center gap-2 text-sm">
           {(def?.sagaStates ?? []).map((s, i) => (
             <span key={s} className="flex items-center gap-2">
@@ -115,45 +114,43 @@ export default function HowSagaWorksPage() {
           ))}
         </div>
         <p className="mt-3 text-sm text-slate-400">
-          <b className="text-fuchsia-300">COMPENSATION_FAILED</b> is the honest ending: if an undo itself fails, the
-          system is inconsistent and a human must repair it. Try scenario 5 in the control room.
+          <b className="text-fuchsia-300">COMPENSATION_FAILED</b> là kết cục trung thực: nếu chính bước hoàn tác bị lỗi
+          thì hệ thống bất nhất và phải có người sửa thủ công. Hãy thử kịch bản 5 trong Control Room.
         </p>
       </Card>
 
       <div className="grid gap-5 md:grid-cols-2">
-        <Card title="Orchestration vs Choreography">
+        <Card title="Orchestration và Choreography">
           <div className="space-y-3 text-sm text-slate-400">
             <p>
-              <b className="text-sky-300">Orchestration (this demo):</b> one central orchestrator tells each service
-              what to do and what to undo. The whole flow is in one class, which is easy to read, monitor and debug.
+              <b className="text-sky-300">Orchestration (demo này):</b> một orchestrator trung tâm bảo từng service làm
+              gì và hoàn tác gì. Toàn bộ luồng nằm trong một class nên dễ đọc, dễ theo dõi và dễ debug.
             </p>
             <p>
-              <b className="text-slate-200">Choreography:</b> services react to each other&apos;s events with no central
-              brain. It is more decoupled, but the flow is spread across services and harder to follow.
+              <b className="text-slate-200">Choreography:</b> các service phản ứng với event của nhau, không có
+              &quot;bộ não&quot; trung tâm. Ít phụ thuộc lẫn nhau hơn, nhưng luồng bị rải khắp các service nên khó theo
+              dõi.
             </p>
-            <p className="text-slate-500">
-              Trade-off: the orchestrator is a coordination point that must itself be reliable.
-            </p>
+            <p className="text-slate-500">Đánh đổi: orchestrator là điểm điều phối nên bản thân nó phải đáng tin cậy.</p>
           </div>
         </Card>
 
-        <Card title="Limits to be honest about">
+        <Card title="Những giới hạn cần nói rõ">
           <ul className="list-disc space-y-2 pl-5 text-sm text-slate-400">
             <li>
-              <b className="text-slate-200">No isolation.</b> Other users can briefly see intermediate states (stock
-              reserved but the order not yet confirmed).
+              <b className="text-slate-200">Không có isolation.</b> Người dùng khác có thể thấy trạng thái trung gian
+              trong chốc lát (hàng đã giữ nhưng đơn chưa được xác nhận).
             </li>
             <li>
-              <b className="text-slate-200">Compensations must be idempotent</b> because they may be retried.
+              <b className="text-slate-200">Compensation phải idempotent</b> vì có thể bị retry.
             </li>
             <li>
-              <b className="text-slate-200">Not guaranteed to roll back.</b> A failing compensation needs manual
-              recovery.
+              <b className="text-slate-200">Không đảm bảo hoàn tác được.</b> Compensation bị lỗi thì cần xử lý thủ
+              công.
             </li>
             <li>
-              <b className="text-slate-200">Demo scope.</b> Failures are simulated with flags, and calls are synchronous
-              HTTP. A production system would use a message broker (the orchestrator already publishes events through a
-              seam for this).
+              <b className="text-slate-200">Phạm vi demo.</b> Lỗi được giả lập bằng cờ, các lời gọi là HTTP đồng bộ. Hệ
+              thống thật sẽ dùng message broker (orchestrator đã có sẵn chỗ publish event cho việc này).
             </li>
           </ul>
         </Card>

@@ -10,14 +10,14 @@ describe("ScenarioPicker", () => {
   it("renders every preset and marks the active one", () => {
     render(<ScenarioPicker activeId={3} disabled={false} onPick={() => {}} />);
     expect(screen.getAllByRole("button")).toHaveLength(SCENARIOS.length);
-    expect(screen.getByRole("button", { name: /3 · Payment fails/ })).toHaveAttribute("aria-pressed", "true");
-    expect(screen.getByRole("button", { name: /1 · Happy path/ })).toHaveAttribute("aria-pressed", "false");
+    expect(screen.getByRole("button", { name: /3 · Lỗi thanh toán/ })).toHaveAttribute("aria-pressed", "true");
+    expect(screen.getByRole("button", { name: /1 · Thành công/ })).toHaveAttribute("aria-pressed", "false");
   });
 
   it("reports the picked scenario", async () => {
     const onPick = vi.fn();
     render(<ScenarioPicker activeId={undefined} disabled={false} onPick={onPick} />);
-    await userEvent.click(screen.getByRole("button", { name: /5 · Compensation fails/ }));
+    await userEvent.click(screen.getByRole("button", { name: /5 · Lỗi compensation/ }));
     expect(onPick).toHaveBeenCalledWith(SCENARIOS[4]);
   });
 
@@ -31,7 +31,7 @@ describe("FailureToggles", () => {
   it("toggles a single flag without touching the others", async () => {
     const onChange = vi.fn();
     render(<FailureToggles value={NO_FAILURES} disabled={false} onChange={onChange} />);
-    await userEvent.click(screen.getByLabelText("Fail Process Payment"));
+    await userEvent.click(screen.getByLabelText("Lỗi Thanh toán"));
     expect(onChange).toHaveBeenCalledWith({ ...NO_FAILURES, failProcessPayment: true });
   });
 

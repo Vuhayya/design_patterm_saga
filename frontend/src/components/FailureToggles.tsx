@@ -2,8 +2,8 @@ import { FAILURE_TOGGLES } from "@/lib/saga";
 import type { FailureSimulation } from "@/lib/types";
 
 const GROUPS = [
-  { id: "forward", label: "Forward steps" },
-  { id: "compensation", label: "Compensating steps" },
+  { id: "forward", label: "Bước xuôi (forward)" },
+  { id: "compensation", label: "Bước bù trừ (compensation)" },
 ] as const;
 
 export function FailureToggles({
@@ -17,7 +17,7 @@ export function FailureToggles({
 }) {
   return (
     <fieldset disabled={disabled}>
-      <legend className="mb-2 text-sm font-bold text-slate-200">Failure simulation (custom)</legend>
+      <legend className="mb-2 text-sm font-bold text-slate-200">Giả lập lỗi (tuỳ chỉnh)</legend>
       {GROUPS.map((group) => (
         <div key={group.id} className="mb-2">
           <p className="mb-1 text-xs tracking-wide text-slate-500 uppercase">{group.label}</p>
@@ -38,7 +38,7 @@ export function FailureToggles({
                   onChange={(e) => onChange({ ...value, [t.key]: e.target.checked })}
                 />
                 <span aria-hidden>{value[t.key] ? "✕ " : ""}</span>
-                Fail {t.label}
+                Lỗi {t.label}
               </label>
             ))}
           </div>
